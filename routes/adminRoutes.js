@@ -3,7 +3,7 @@ const router = express.Router();
 const authMiddleware=require('../middleware/authMiddleware');
 const roleMiddleware=require('../middleware/roleMiddleware');
 
-const { createUser, getAllUsers} = require('../controllers/adminController');
+const { createUser, getAllUsers, deleteUser} = require('../controllers/adminController');
 const { verify } = require('jsonwebtoken');
 
 router.get(
@@ -30,5 +30,12 @@ router.get(
      authMiddleware,
      roleMiddleware(['admin']),
      getAllUsers);
+
+     router.delete(
+        '/users/:id',
+        authMiddleware,
+        roleMiddleware(['admin']),
+        deleteUser
+     );
 
 module.exports = router;

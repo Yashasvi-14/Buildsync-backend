@@ -44,6 +44,7 @@ const createUser = async (req, res) => {
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };
+
 const getAllUsers=async (req,res) => {
     try{
     const users = await User.find().select('-password');
@@ -54,4 +55,21 @@ const getAllUsers=async (req,res) => {
     }
 };
 
-module.exports = { createUser, getAllUsers };
+const deleteUser = async (req, res) => {
+  try{
+    const userId=req.params.id;
+
+    const user=await User.findById(userId);
+    if(!user){
+      return res.status(404).json({message: 'User not found'});
+    }
+
+    await User.findByIdAndDelete(userId);
+    res.status(200).json({message: 'User deleted successfully'});
+  } catch (err) {
+    console.err('Error Deleting User:',err.message);
+    res.status(500).json({message: 'Server error while deleting user'});
+  }
+};
+
+module.exports = { createUser, getAllUsers ,deleteUser,};
