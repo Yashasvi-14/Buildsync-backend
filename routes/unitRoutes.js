@@ -15,7 +15,7 @@ router.post(
 
 // Get all units
 router.get(
-  '/',
+  '/units',
   authMiddleware,
   roleMiddleware(['admin', 'manager']),
   getAllUnits
@@ -23,7 +23,7 @@ router.get(
 
 // Get unit by ID
 router.get(
-  '/:id',
+  '/units/:id',
   authMiddleware,
   roleMiddleware(['admin', 'manager']),
   getUnitById
@@ -31,7 +31,7 @@ router.get(
 
 // Update unit
 router.patch(
-  '/:id',
+  '/units/:id',
   authMiddleware,
   roleMiddleware(['admin', 'manager']),
   updateUnit
@@ -39,7 +39,7 @@ router.patch(
 
 // Delete unit
 router.delete(
-  '/:id',
+  '/units/:id',
   authMiddleware,
   roleMiddleware(['admin', 'manager']),
   deleteUnit

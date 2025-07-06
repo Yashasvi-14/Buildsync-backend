@@ -5,7 +5,7 @@ const authRoutes=require('./routes/auth');
 const adminRoutes = require('./routes/adminRoutes');
 const managerRoutes = require('./routes/managerRoutes');
 const unitRoutes = require('./routes/unitRoutes');
-
+const staffRoutes = require('./routes/staffRoutes');
 dotenv.config();
 connectDB();
 
@@ -20,6 +20,8 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/manager', managerRoutes);
 
 app.use('/api/units',unitRoutes);
+
+app.use('/api/manager/staff', staffRoutes);
 
 app.get("/",(req,res)=>{
     res.send("BuildSync API is alive 💥");

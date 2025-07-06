@@ -2,9 +2,19 @@ const Unit = require('../models/unitModel');
 
 const createUnit = async (req,res) => {
     try{
-        const unit = new Unit(req.body);
-        const savedUnit = await unit.save();
-        res.status(201).json(savedUnit);
+        const { unitNumber, floor, building } = req.body;
+
+  if (!unitNumber || !floor || !building) {
+    res.status(400).json({message: 'All fields are required'});
+  }
+
+  const unit = await Unit.create({
+    unitNumber,
+    floor,
+    building,
+  });
+
+  res.status(201).json(unit);
     } catch (error) {
         console.log(error);
         res.status(500).json({message: 'Server error'});
