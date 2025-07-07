@@ -26,11 +26,21 @@ router.post('/register', async(req,res) => {
 
 router.post('/login', async(req,res) => {
     const { email, password }=req.body;
+    console.log("Login request received with:", { email, password });
     try {
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ email }).populate({
+            path: 'unit',
+            populate: {
+                path: 'building',
+                model:'Building'
+            }
+        });
+        console.log("User found in DB:", user);
+
         if (!user) return res.status(400).json({message: 'Invalid Credentials'});
 
-        const isMatch=await bcrypt.compare(password,user.password);
+        const isMatch=await bcrypt.compare(password, user.password);
+        console.log("Password match result:", isMatch);
         if (!isMatch) return res.status(400).json({message: 'Invalid Credentials'});
 
         const payload={
@@ -42,7 +52,26 @@ router.post('/login', async(req,res) => {
         const token = jwt.sign(payload, process.env.JWT_SECRET, { 
             expiresIn: '1d'
         });
-        res.json({token, role:user.role, name: user.name});
+         console.log("Token generated successfully");
+        if (user.role === 'resident' && user.unit && user.unit.building) {
+  res.json({
+    token,
+    role: user.role,
+    name: user.name,
+    unit: user.unit._id,
+    unitNumber: user.unit.unitNumber,
+    building: user.unit.building._id,
+    buildingName: user.unit.building.name
+  });
+} else {
+  // For admin and manager, no unit/building
+  res.json({
+    token,
+    role: user.role,
+    name: user.name
+  });
+}
+
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server error');

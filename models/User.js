@@ -19,8 +19,12 @@ const userSchema= new mongoose.Schema(
         },
         role: {
             type: String,
-            enum: ["admin", "manager", "staff"],
-            default: "manager",
+            enum: ["admin", "manager","resident","staff"],
+            default: "resident",
+        },
+        unit: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Unit',
         },
     },
     { timestamps: true }
