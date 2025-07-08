@@ -35,9 +35,14 @@ router.post('/login', async(req,res) => {
                 model:'Building'
             }
         });
+
         console.log("User found in DB:", user);
 
         if (!user) return res.status(400).json({message: 'Invalid Credentials'});
+
+        if (user.isBlocked) {
+         return res.status(403).json({ error: 'Your account has been blocked. Please contact admin.' });
+        }
 
         const isMatch=await bcrypt.compare(password, user.password);
         console.log("Password match result:", isMatch);

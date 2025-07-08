@@ -14,32 +14,4 @@ router.get(
     }
 );
 
-router.post(
-    '/buildings',
-    authMiddleware,
-    roleMiddleware(['manager']),
-    createBuilding
-);
-
-router.get(
-    '/buildings',
-    authMiddleware,
-    roleMiddleware(['manager']),
-    getMyBuildings
-);
-
-router.put(
-    '/buildings/:id',
-    authMiddleware,
-    roleMiddleware(['manager']),
-    updateBuilding
-)
-
-router.delete(
-    '/buildings/:id',
-    authMiddleware,
-    roleMiddleware(['manager']),
-    deleteBuilding
-)
-
 module.exports = router;

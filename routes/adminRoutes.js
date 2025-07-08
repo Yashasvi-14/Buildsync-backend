@@ -6,6 +6,8 @@ const roleMiddleware=require('../middleware/roleMiddleware');
 const { createUser, getAllUsers, deleteUser, updateUser} = require('../controllers/adminController');
 const { verify } = require('jsonwebtoken');
 
+const{ blockUser, unblockUser} = require('../controllers/adminController');
+
 router.get(
     '/test',
     authMiddleware,
@@ -45,6 +47,20 @@ router.patch(
     authMiddleware,
     roleMiddleware(['admin']),
     updateUser
+);
+
+router.patch(
+  '/users/:id/block',
+  authMiddleware,
+  roleMiddleware(['admin']),
+  blockUser
+);
+
+router.patch(
+  '/users/:id/unblock',
+  authMiddleware,
+  roleMiddleware(['admin']),
+  unblockUser
 );
 
 module.exports = router;

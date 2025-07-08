@@ -93,4 +93,48 @@ const updateUser= async(req,res) => {
   }
 };
 
-module.exports = { createUser, getAllUsers ,deleteUser,updateUser};
+// Block user
+const blockUser = async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { isBlocked: true },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.status(200).json({
+      message: `User ${user.name} has been blocked.`,
+      user,
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+// Unblock user
+const unblockUser = async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { isBlocked: false },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.status(200).json({
+      message: `User ${user.name} has been unblocked.`,
+      user,
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+module.exports = { createUser, getAllUsers ,deleteUser,updateUser,blockUser,unblockUser};

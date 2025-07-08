@@ -14,7 +14,7 @@ const createBuilding= async (req,res) => {
             createdBy: req.user.id,
         });
 
-        res.status(201).json({message: 'Building creayed successfully',building});
+        res.status(201).json({message: 'Building created successfully',building});
     } catch(err) {
         console.error(err.message);
         res.status(500).json({message: 'Server Error'});
@@ -29,6 +29,20 @@ const getMyBuildings= async (req,res) => {
         console.error(error.message);
         res.status(500).json({message: 'Server error'});
     }
+};
+const getBuildingById = async (req, res) => {
+  try {
+    const building = await Building.findById(req.params.id);
+
+    if (!building) {
+      return res.status(404).json({ message: 'Building not found' });
+    }
+
+    res.status(200).json(building);
+  } catch (error) {
+    console.error('Error in getBuildingById:', error);
+    res.status(500).json({ message: 'Server Error' });
+  }
 };
 
 const updateBuilding = async (req,res) => {
@@ -83,4 +97,4 @@ const deleteBuilding = async(req,res) => {
     }
 };
 
-module.exports = {createBuilding, getMyBuildings,updateBuilding ,deleteBuilding};
+module.exports = {createBuilding, getMyBuildings,getBuildingById,updateBuilding ,deleteBuilding};

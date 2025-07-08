@@ -20,6 +20,8 @@ app.use('/api/admin', adminRoutes);
 
 app.use('/api/manager', managerRoutes);
 
+app.use('/api/admin/buildings', require('./routes/admin/buildingRoutes'));
+
 app.use('/api/units',unitRoutes);
 
 app.use('/api/manager/staff', staffRoutes);
