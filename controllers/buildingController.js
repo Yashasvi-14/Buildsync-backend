@@ -2,7 +2,7 @@ const Building=require('../models/Building');
 
 const createBuilding= async (req,res) => {
     try{
-        const { name,address,numberOfFloors}=req.body;
+        const { name,address,numberOfFloors,description,units}=req.body;
 
         if(!name || !address || !numberOfFloors){
             return res.status(400).json({message: 'All fields are required'});
@@ -12,6 +12,8 @@ const createBuilding= async (req,res) => {
             address,
             numberOfFloors,
             createdBy: req.user.id,
+            description,
+            units
         });
 
         res.status(201).json({message: 'Building created successfully',building});

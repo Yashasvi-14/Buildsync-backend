@@ -3,7 +3,7 @@ const router = express.Router();
 const authMiddleware=require('../middleware/authMiddleware');
 const roleMiddleware=require('../middleware/roleMiddleware');
 
-const{ createUnit,getAllUnits,getUnitById,updateUnit,deleteUnit}=require('../controllers/unitController');
+const{ createUnit,getUnitsByBuilding,getAllUnits,getUnitById,updateUnit,deleteUnit}=require('../controllers/unitController');
 
 // Create Unit
 router.post(
@@ -13,9 +13,16 @@ router.post(
   createUnit
 );
 
+router.get(
+  '/building/:buildingId',
+  authMiddleware,
+  roleMiddleware(['admin','manager']),
+  getUnitsByBuilding
+)
+
 // Get all units
 router.get(
-  '/units',
+  '/',
   authMiddleware,
   roleMiddleware(['admin', 'manager']),
   getAllUnits
@@ -23,7 +30,7 @@ router.get(
 
 // Get unit by ID
 router.get(
-  '/units/:id',
+  '/:id',
   authMiddleware,
   roleMiddleware(['admin', 'manager']),
   getUnitById
@@ -31,7 +38,7 @@ router.get(
 
 // Update unit
 router.patch(
-  '/units/:id',
+  '/:id',
   authMiddleware,
   roleMiddleware(['admin', 'manager']),
   updateUnit
@@ -39,7 +46,7 @@ router.patch(
 
 // Delete unit
 router.delete(
-  '/units/:id',
+  '/:id',
   authMiddleware,
   roleMiddleware(['admin', 'manager']),
   deleteUnit

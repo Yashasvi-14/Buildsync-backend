@@ -19,6 +19,17 @@ const buildingSchema = new mongoose.Schema({
         ref: 'User',
         required: true,
     },
+    description: {
+    type: String,
+    default: '',
+    },
+    units: [
+    {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Unit',
+    },],
+
+
 },{
     timestamps: true
 });

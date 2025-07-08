@@ -1,24 +1,41 @@
 const Unit = require('../models/unitModel');
-
+const Building = require('../models/Building');
 const createUnit = async (req,res) => {
     try{
-        const { unitNumber, floor, building } = req.body;
+        const { unitNumber, floor, buildingId } = req.body;
+        const building=await Building.findById(buildingId);
 
-  if (!unitNumber || !floor || !building) {
+  if (!unitNumber || !floor || !buildingId) {
     res.status(400).json({message: 'All fields are required'});
   }
-
+  if (!building) return res.status(404).json({ message: 'Building not found' });
   const unit = await Unit.create({
     unitNumber,
     floor,
-    building,
+    building: building._id,
   });
 
-  res.status(201).json(unit);
+  building.units.push(unit._id);
+  await building.save();
+
+  res.status(201).json({ message: 'Unit created successfully', unit: unit });
     } catch (error) {
-        console.log(error);
-        res.status(500).json({message: 'Server error'});
+        console.log('Create Unit Error:',error);
+        res.status(500).json({message: 'Server error while creating unit'});
     }
+};
+
+const getUnitsByBuilding = async (req, res) => {
+  try {
+    const { buildingId } = req.params;
+
+    const units = await Unit.find({ building: buildingId }).populate('building', 'name address');
+
+    res.status(200).json({ message: 'Units fetched successfully', units });
+  } catch (err) {
+    console.error('Get Units Error:', err);
+    res.status(500).json({ message: 'Server error while fetching units' });
+  }
 };
 
 const getAllUnits = async (req, res) => {
@@ -42,22 +59,37 @@ const getUnitById = async (req,res) => {
 };
 const updateUnit = async (req, res) => {
   try {
-    const updatedUnit = await Unit.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!updatedUnit) return res.status(404).json({ message: 'Unit not found' });
-    res.status(200).json(updatedUnit);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    const { id } = req.params;
+    const { unitNumber, floor, type, status } = req.body;
+
+    const unit = await Unit.findById(id);
+    if (!unit) return res.status(404).json({ message: 'Unit not found' });
+
+    if (unitNumber) unit.unitNumber = unitNumber;
+    if (floor) unit.floor = floor;
+    if (type) unit.type = type;
+    if (status) unit.status = status;
+
+    await unit.save();
+    res.status(200).json({ message: 'Unit updated successfully', unit });
+  } catch (err) {
+    console.error('Update Unit Error:', err);
+    res.status(500).json({ message: 'Server error while updating unit' });
   }
 };
 
 const deleteUnit = async (req, res) => {
   try {
-    const deletedUnit = await Unit.findByIdAndDelete(req.params.id);
-    if (!deletedUnit) return res.status(404).json({ message: 'Unit not found' });
+    const { id } = req.params;
+
+    const unit = await Unit.findByIdAndDelete(id);
+    if (!unit) return res.status(404).json({ message: 'Unit not found' });
+
     res.status(200).json({ message: 'Unit deleted successfully' });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    console.error('Delete Unit Error:', err);
+    res.status(500).json({ message: 'Server error while deleting unit' });
   }
 };
 
-module.exports={createUnit,getAllUnits,getUnitById,updateUnit,deleteUnit};
+module.exports={createUnit,getUnitsByBuilding,getAllUnits,getUnitById,updateUnit,deleteUnit};
