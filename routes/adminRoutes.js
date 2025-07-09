@@ -6,7 +6,7 @@ const roleMiddleware=require('../middleware/roleMiddleware');
 const { createUser, getAllUsers, deleteUser, updateUser} = require('../controllers/adminController');
 const { verify } = require('jsonwebtoken');
 
-const{ blockUser, unblockUser} = require('../controllers/adminController');
+const{ blockUser, unblockUser,assignBuildingToManager} = require('../controllers/adminController');
 
 router.get(
     '/test',
@@ -61,6 +61,13 @@ router.patch(
   authMiddleware,
   roleMiddleware(['admin']),
   unblockUser
+);
+
+router.patch(
+    '/users/:id/assign-building',
+     authMiddleware,
+     roleMiddleware(['admin']), 
+    assignBuildingToManager
 );
 
 module.exports = router;

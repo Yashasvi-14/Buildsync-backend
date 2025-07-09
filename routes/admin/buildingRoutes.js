@@ -12,7 +12,7 @@ const authMiddleware = require('../../middleware/authMiddleware');
 const roleMiddleware = require('../../middleware/roleMiddleware');
 
 // Admin only
-router.use(authMiddleware, roleMiddleware(['admin']));
+router.use(authMiddleware, roleMiddleware(['admin','manager']));
 
 router.post('/', createBuilding);
 router.get('/', getMyBuildings);

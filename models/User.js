@@ -22,6 +22,11 @@ const userSchema= new mongoose.Schema(
             enum: ["admin", "manager","resident","staff"],
             default: "resident",
         },
+        building: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Building',
+        default: null,
+        },
         unit: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Unit',

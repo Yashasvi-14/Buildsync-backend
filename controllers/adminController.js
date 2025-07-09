@@ -1,7 +1,7 @@
 
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
-
+const Building = require('../models/Building');
 const createUser = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
@@ -137,4 +137,28 @@ const unblockUser = async (req, res) => {
   }
 };
 
-module.exports = { createUser, getAllUsers ,deleteUser,updateUser,blockUser,unblockUser};
+const assignBuildingToManager = async (req, res) => {
+  try {
+    const { id } = req.params; // manager id
+    const { buildingId } = req.body;
+
+    const user = await User.findById(id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    if (user.role !== 'manager')
+      return res.status(400).json({ message: 'User is not a manager' });
+
+    const building = await Building.findById(buildingId);
+    if (!building) return res.status(404).json({ message: 'Building not found' });
+
+    user.building = buildingId;
+    await user.save();
+
+    res.status(200).json({ message: 'Building assigned to manager successfully', user });
+  } catch (err) {
+    console.error('Assign building error:', err);
+    res.status(500).json({ message: 'Server error while assigning building' });
+  }
+};
+
+module.exports = { createUser, getAllUsers ,deleteUser,updateUser,blockUser,unblockUser,assignBuildingToManager};
