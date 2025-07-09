@@ -4,7 +4,7 @@ const authMiddleware=require('../middleware/authMiddleware');
 const roleMiddleware=require('../middleware/roleMiddleware');
 const managerController = require('../controllers/managerController');
 const {createBuilding, getMyBuildings , updateBuilding,deleteBuilding}=require('../controllers/buildingController');
-const { getAllResidentsForManager, createResident } = require('../controllers/managerController');
+const { getAllResidentsForManager, createResident ,updateResidentByManager,deleteResidentByManager,getResidentById} = require('../controllers/managerController');
 router.get(
     '/test',
     authMiddleware,
@@ -36,5 +36,28 @@ router.get(
      roleMiddleware(['manager']),
      getAllResidentsForManager
 );
+
+router.patch(
+    '/residents/:id', 
+    authMiddleware, 
+    roleMiddleware(['manager']), 
+    updateResidentByManager
+);
+
+router.delete(
+    '/residents/:id',
+     authMiddleware,
+    roleMiddleware(['manager']), 
+    deleteResidentByManager
+);
+
+router.get(
+    '/residents/:id', 
+    authMiddleware, 
+    roleMiddleware(['manager']), 
+    getResidentById
+);
+
+
 
 module.exports = router;
