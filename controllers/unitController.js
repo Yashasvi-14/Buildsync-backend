@@ -6,7 +6,7 @@ const createUnit = async (req,res) => {
         const building=await Building.findById(buildingId);
 
   if (!unitNumber || !floor || !buildingId) {
-    res.status(400).json({message: 'All fields are required'});
+    return res.status(400).json({message: 'All fields are required'});
   }
   if (!building) return res.status(404).json({ message: 'Building not found' });
   const unit = await Unit.create({
@@ -60,10 +60,28 @@ const getUnitById = async (req,res) => {
 const updateUnit = async (req, res) => {
   try {
     const { id } = req.params;
-    const { unitNumber, floor, type, status } = req.body;
+    const { unitNumber, floor, type, status, buildingId } = req.body;
 
     const unit = await Unit.findById(id);
     if (!unit) return res.status(404).json({ message: 'Unit not found' });
+
+    // If buildingId changed, update both buildings
+    if (buildingId && !unit.building.equals(buildingId)) {
+      const oldBuilding = await Building.findById(unit.building);
+      const newBuilding = await Building.findById(buildingId);
+      if (!newBuilding) return res.status(404).json({ message: 'New building not found' });
+
+      // Remove from old building
+      oldBuilding.units.pull(unit._id);
+      await oldBuilding.save();
+
+      // Add to new building
+      newBuilding.units.push(unit._id);
+      await newBuilding.save();
+
+      // Update unit's building ref
+      unit.building = buildingId;
+    }
 
     if (unitNumber) unit.unitNumber = unitNumber;
     if (floor) unit.floor = floor;
@@ -83,13 +101,28 @@ const deleteUnit = async (req, res) => {
     const { id } = req.params;
 
     const unit = await Unit.findByIdAndDelete(id);
-    if (!unit) return res.status(404).json({ message: 'Unit not found' });
+    if (!unit) {
+      return res.status(404).json({ message: 'Unit not found' });
+    }
 
-    res.status(200).json({ message: 'Unit deleted successfully' });
+    // Remove reference from building
+    await Building.findByIdAndUpdate(unit.building, {
+      $pull: { units: unit._id },
+    });
+
+    // Unassign unit from all staff
+    await User.updateMany(
+      { _id: { $in: unit.staff } },
+      { $unset: { unit: "" } }
+    );
+
+    res.status(200).json({ message: 'Unit deleted and staff unassigned' });
   } catch (err) {
     console.error('Delete Unit Error:', err);
     res.status(500).json({ message: 'Server error while deleting unit' });
   }
 };
+
+
 
 module.exports={createUnit,getUnitsByBuilding,getAllUnits,getUnitById,updateUnit,deleteUnit};
