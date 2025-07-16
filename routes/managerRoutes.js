@@ -5,6 +5,7 @@ const roleMiddleware=require('../middleware/roleMiddleware');
 const managerController = require('../controllers/managerController');
 const {createBuilding, getMyBuildings , updateBuilding,deleteBuilding}=require('../controllers/buildingController');
 const { getAllResidentsForManager, createResident ,updateResidentByManager,deleteResidentByManager,getResidentById} = require('../controllers/managerController');
+const{ getManagerStats} =  require("../controllers/managerController");
 router.get(
     '/test',
     authMiddleware,
@@ -56,6 +57,13 @@ router.get(
     authMiddleware, 
     roleMiddleware(['manager']), 
     getResidentById
+);
+
+router.get(
+    '/stats',
+    authMiddleware,
+    roleMiddleware(['manager']),
+    getManagerStats
 );
 
 

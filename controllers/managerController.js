@@ -223,8 +223,40 @@ const getResidentById = async (req, res) => {
   }
 };
 
+const Staff = require("../models/StaffModel");
+
+const getManagerStats = async (req, res) => {
+  try {
+    const managerBuilding = req.user.building;
+
+    const totalResidents = await User.countDocuments({
+      role: "resident",
+      building: managerBuilding,
+    });
+
+    const totalUnits = await Unit.countDocuments({
+      building: managerBuilding,
+    });
+
+    const totalStaff = await Staff.countDocuments({
+      building: managerBuilding,
+    });
+
+    res.status(200).json({
+      totalResidents,
+      totalUnits,
+      totalStaff,
+    });
+  } catch (error) {
+    console.error("Error fetching manager stats:", error);
+    res.status(500).json({ message: "Failed to fetch manager stats" });
+  }
+};
+
+
 
 
 module.exports = {
-  getMyUnits,getAllResidentsForManager,createResident,updateResidentByManager,deleteResidentByManager, getResidentById
+  getMyUnits,getAllResidentsForManager,createResident,updateResidentByManager,deleteResidentByManager, getResidentById,
+  getManagerStats
 };
