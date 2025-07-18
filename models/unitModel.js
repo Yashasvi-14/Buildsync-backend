@@ -19,6 +19,10 @@ const unitSchema = new mongoose.Schema({
         ref: 'Building',
         required: true,
     },
+    residents: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
     staffAssigned: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
