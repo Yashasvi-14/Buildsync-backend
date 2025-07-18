@@ -1,5 +1,9 @@
 const Building=require('../models/Building');
 
+const generateBuildingCode = () => {
+  return 'B' + Math.random().toString(36).substring(2, 8).toUpperCase(); 
+};
+
 const createBuilding= async (req,res) => {
     try{
         const { name,address,numberOfFloors,description,units}=req.body;
@@ -7,10 +11,20 @@ const createBuilding= async (req,res) => {
         if(!name || !address || !numberOfFloors){
             return res.status(400).json({message: 'All fields are required'});
         }
+
+        let buildingCode;
+        let exists = true;
+        while (exists) {
+        buildingCode = generateBuildingCode();
+        const existing = await Building.findOne({ buildingCode });
+        if (!existing) exists = false;
+    }
+
         const building=await Building.create({
             name,
             address,
             numberOfFloors,
+            buildingCode,
             createdBy: req.user.id,
             description,
             units

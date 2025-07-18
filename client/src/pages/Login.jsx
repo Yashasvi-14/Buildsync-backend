@@ -1,9 +1,45 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import logo from "@/assets/buildsync-logo.png"; // Adjust path if needed
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+
+  const handleLogin = async (e) => {
+  e.preventDefault();
+
+  try {
+    const response = await axios.post(
+      "http://localhost:5000/api/auth/login", // Update with your actual backend URL if needed
+      {email,
+       password }
+    );
+
+    const userData = response.data;
+
+    // Store in localStorage
+    localStorage.setItem("user", JSON.stringify(userData));
+
+    // Redirect based on role
+    if (userData.role === "admin") {
+      navigate("/admin/dashboard");
+    } else if (userData.role === "manager") {
+      navigate("/manager/dashboard");
+    } else if (userData.role === "resident") {
+      navigate("/resident/dashboard");
+    } else {
+      alert("Unknown user role");
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Invalid email or password");
+  }
+};
 
   return (
     <div className="min-h-screen bg-[#f6f8fa] flex items-center justify-center px-4">
@@ -41,6 +77,8 @@ export default function Login() {
             <input
               type="email"
               id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
               className="w-full px-4 py-3 rounded-md border border-[#d1d5db] bg-[#f9fafb] text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#2c62f6]"
             />
@@ -58,6 +96,8 @@ export default function Login() {
               <input
                 type={showPassword ? "text" : "password"}
                 id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 className="w-full px-4 py-3 rounded-md border border-[#d1d5db] bg-[#f9fafb] text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#2c62f6]"
               />
@@ -74,6 +114,7 @@ export default function Login() {
           {/* Submit */}
           <button
             type="submit"
+            onClick={handleLogin}
             className="w-full bg-gradient-to-r from-[#1e3a8a] to-[#1d4ed8] text-white py-3 rounded-md text-sm font-semibold shadow-md hover:opacity-90 transition-all"
           >
             Login

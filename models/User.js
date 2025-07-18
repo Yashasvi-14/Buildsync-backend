@@ -22,6 +22,11 @@ const userSchema= new mongoose.Schema(
             enum: ["admin", "manager","resident","staff"],
             default: "resident",
         },
+        status: {
+        type: String,
+        enum: ['pending', 'approved', 'rejected'],
+        default: 'pending',
+        },
         building: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Building',

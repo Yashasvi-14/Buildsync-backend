@@ -1,10 +1,50 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logo from "@/assets/buildsync-logo.png"; // adjust path if needed
+import axios from "@/lib/axios";
 
 export default function Register() {
+  const navigate= useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const[error,setError]=useState("");
+
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    role: "manager",
+  });
+  const handleChange = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    if (formData.password !== formData.confirmPassword) {
+      return setError("Passwords do not match.");
+    }
+
+    try {
+      const res = await axios.post("/auth/register", formData);
+      const { token, user } = res.data;
+
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+
+      if (user.role === "admin") navigate("/admin/dashboard");
+      else if (user.role === "manager") navigate("/manager/dashboard");
+      else navigate("/resident/dashboard");
+    } catch (err) {
+      setError(err.response?.data?.message || "Registration failed");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#f6f8fa] flex items-center justify-center px-4">
@@ -30,13 +70,19 @@ export default function Register() {
           <h2 className="text-center text-2xl font-bold text-[#111827] mb-6">
             Create your BuildSync account
           </h2>
+          {error && (
+            <p className="text-red-600 text-sm text-center mb-4">{error}</p>
+          )}
 
-          <form className="space-y-5">
+          <form className="space-y-5" onSubmit={handleSubmit}>
             {/* Name */}
             <div>
               <label className="text-sm font-medium text-[#374151]">Name</label>
               <input
                 type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
                 placeholder="Your Name"
                 className="w-full px-4 py-3 rounded-md border border-[#d1d5db] bg-[#f9fafb] text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#2c62f6]"
               />
@@ -46,7 +92,10 @@ export default function Register() {
             <div>
               <label className="text-sm font-medium text-[#374151]">Email</label>
               <input
-                type="email"
+                 type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
                 placeholder="you@example.com"
                 className="w-full px-4 py-3 rounded-md border border-[#d1d5db] bg-[#f9fafb] text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#2c62f6]"
               />
@@ -57,7 +106,10 @@ export default function Register() {
               <label className="text-sm font-medium text-[#374151]">Password</label>
               <div className="relative">
                 <input
-                  type={showPassword ? "text" : "password"}
+                 type={showPassword ? "text" : "password"}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
                   placeholder="••••••••"
                   className="w-full px-4 py-3 rounded-md border border-[#d1d5db] bg-[#f9fafb] text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#2c62f6]"
                 />
@@ -77,6 +129,9 @@ export default function Register() {
               <div className="relative">
                 <input
                   type={showConfirm ? "text" : "password"}
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
                   placeholder="••••••••"
                   className="w-full px-4 py-3 rounded-md border border-[#d1d5db] bg-[#f9fafb] text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#2c62f6]"
                 />

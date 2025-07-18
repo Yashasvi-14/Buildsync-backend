@@ -13,6 +13,14 @@ const buildingSchema = new mongoose.Schema({
     numberOfFloors: {
         type: Number,
         required: true,
+        min: 1,
+    },
+    buildingCode: {
+        type: String,
+        required: true,
+        unique: true,
+        trim: true,
+        uppercase: true,
     },
     createdBy:{
         type: mongoose.Schema.Types.ObjectId,
@@ -22,6 +30,7 @@ const buildingSchema = new mongoose.Schema({
     description: {
     type: String,
     default: '',
+    trim: true,
     },
     units: [
     {
@@ -29,9 +38,19 @@ const buildingSchema = new mongoose.Schema({
     ref: 'Unit',
     },],
 
+    status: {
+        type: String,
+        enum: ['active', 'inactive'],
+        default: 'active',
+    },
+
 
 },{
     timestamps: true
 });
+
+buildingSchema.index({ buildingCode: 1 }, { unique: true });
+buildingSchema.index({ name: 1, address: 1 });
+
 
 module.exports=mongoose.model('Building', buildingSchema);
