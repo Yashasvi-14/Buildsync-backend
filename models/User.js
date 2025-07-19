@@ -27,10 +27,9 @@ const userSchema= new mongoose.Schema(
             default: "resident",
         },
 
-        status: {
-        type: String,
-        enum: ['pending', 'approved', 'rejected'],
-        default: 'pending',
+        isApproved: {
+            type: Boolean,
+            default: false,
         },
 
         buildingCodeRequested: {

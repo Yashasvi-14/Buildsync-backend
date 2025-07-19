@@ -28,7 +28,7 @@ router.post('/login', async(req,res) => {
     const { email, password }=req.body;
     console.log("Login request received with:", { email, password });
     try {
-        const user = await User.findOne({ email }).populate({
+        const user = await User.findOne({ email }).select('+password').populate({
             path: 'unit',
             populate: {
                 path: 'building',
@@ -44,6 +44,11 @@ router.post('/login', async(req,res) => {
         
         if (!user.isApproved) return res.status(403).json({ error: 'Your account is pending approval.' });
 
+        console.log("User fetched from DB:", user);
+console.log("Password from DB:", user.password);
+console.log("Password entered:", password);
+
+
         const isMatch=await bcrypt.compare(password, user.password);
         
         if (!isMatch) return res.status(400).json({message: 'Invalid Credentials'});
@@ -54,8 +59,9 @@ router.post('/login', async(req,res) => {
                 role: user.role,
             }
         };
-        const token = jwt.sign(payload, process.env.JWT_SECRET, { 
-            expiresIn: '1d'
+        console.log("SECRET from env:", process.env.JWT_SECRET);
+        const token = jwt.sign(payload, "ananta_secret_key_123", { 
+            expiresIn: '7d'
         });
          
         if (user.role === 'resident' && user.unit && user.unit.building) {
