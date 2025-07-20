@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import logo from "@/assets/buildsync-logo.png"; 
+import { Button } from "@/components/ui/button";
 
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -11,7 +12,7 @@ const Navbar = () => {
   const navLinks = [
     { name: "Home", path: "/" },
     { name: "Features", path: "/features" },
-    { name: "Dashboard", path: "/dashboard" },
+    { name: "Guide", path: "/how-it-works" },
     { name: "Login", path: "/login" },
     { name: "Register", path: "/register" },
   ];
@@ -25,17 +26,39 @@ const Navbar = () => {
         </Link>
 
         {/* Desktop Nav Links */}
-        <div className="hidden md:flex gap-6 items-center">
-          {navLinks.map(link => (
-            <Link
-              key={link.name}
-              to={link.path}
-              className="text-gray-700 hover:text-primary transition font-medium"
-            >
-              {link.name}
-            </Link>
-          ))}
-        </div>
+<div className="hidden md:flex gap-4 items-center">
+  {navLinks.map(link => {
+    if (link.name === "Login") {
+      return (
+        <Link key={link.name} to={link.path}>
+          <Button variant="outline" className="border-black text-black hover:bg-gray-100">
+            {link.name}
+          </Button>
+        </Link>
+      );
+    }
+
+    if (link.name === "Register") {
+      return (
+        <Link key={link.name} to={link.path}>
+          <Button className="bg-primary text-white hover:bg-primary/90">
+            {link.name}
+          </Button>
+        </Link>
+      );
+    }
+
+    return (
+      <Link
+        key={link.name}
+        to={link.path}
+        className="text-gray-700 hover:text-primary transition font-medium"
+      >
+        {link.name}
+      </Link>
+    );
+  })}
+</div>
 
         {/* Mobile Menu Toggle */}
         <div className="md:hidden">
@@ -48,16 +71,43 @@ const Navbar = () => {
       {/* Mobile Nav Dropdown */}
       {mobileOpen && (
         <div className="md:hidden px-4 pb-4 space-y-2">
-          {navLinks.map(link => (
-            <Link
-              key={link.name}
-              to={link.path}
-              onClick={() => setMobileOpen(false)}
-              className="block text-gray-700 hover:text-primary transition font-medium"
-            >
-              {link.name}
-            </Link>
-          ))}
+          {navLinks.map(link => {
+  if (link.name === "Login") {
+    return (
+      <Link key={link.name} to={link.path} onClick={() => setMobileOpen(false)}>
+        <Button
+          variant="outline"
+          className="w-full border-black text-black mt-1 hover:bg-gray-100"
+        >
+          {link.name}
+        </Button>
+      </Link>
+    );
+  }
+
+  if (link.name === "Register") {
+    return (
+      <Link key={link.name} to={link.path} onClick={() => setMobileOpen(false)}>
+        <Button className="w-full bg-primary text-white mt-1 hover:bg-primary/90">
+          {link.name}
+        </Button>
+      </Link>
+    );
+  }
+
+  return (
+    <Link
+      key={link.name}
+      to={link.path}
+      onClick={() => setMobileOpen(false)}
+      className="block text-gray-700 hover:text-primary transition font-medium mt-1"
+    >
+      {link.name}
+    </Link>
+  );
+})}
+
+
         </div>
       )}
     </header>

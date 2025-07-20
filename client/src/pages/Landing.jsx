@@ -6,9 +6,21 @@ import TestimonialsSection from "../components/TestimonialsSection";
 import HowItWorks from "../components/HowItWorks";
 import FaqSection from "../components/FaqSection";
 import Footer from "../components/Footer";
-//import FeatureSection from "@/components/FeatureSection";
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+
 
 const Landing = () => {
+  const location = useLocation();
+
+useEffect(() => {
+  if (location.hash) {
+    const element = document.querySelector(location.hash);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  }
+}, [location]);
   return (
     <>
       <Navbar />
