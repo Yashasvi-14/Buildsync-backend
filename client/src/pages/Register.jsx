@@ -1,56 +1,51 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import logo from "@/assets/buildsync-logo.png"; // adjust path if needed
-import axios from "@/lib/axios";
+import axios from "axios";
+import logo from "@/assets/buildsync-logo.png"; // Update if path differs
 
 export default function Register() {
-  const navigate= useNavigate();
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
-  const[error,setError]=useState("");
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
-    confirmPassword: "",
-    role: "manager",
+    role: "",
+    buildingCodeRequested: "",
   });
+
+  const [showPassword, setShowPassword] = useState(false);
+
   const handleChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
-    setError("");
+    alert("Triggered");
+    console.log("Building Code Sent:", formData.buildingCodeRequested);
 
-    if (formData.password !== formData.confirmPassword) {
-      return setError("Passwords do not match.");
-    }
-
+    console.log("Form Submitted:", formData);
     try {
-      const res = await axios.post("/auth/register", formData);
-      const { token, user } = res.data;
 
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user));
+      console.log("Form Data Submitted:", formData);
 
-      if (user.role === "admin") navigate("/admin/dashboard");
-      else if (user.role === "manager") navigate("/manager/dashboard");
-      else navigate("/resident/dashboard");
+      const response = await axios.post("http://localhost:5000/api/auth/register", {...formData, buildingCodeRequested: formData.buildingCodeRequested.trim()});
+      
+      alert("Registration successful! Awaiting approval.");
+      navigate("/login");
     } catch (err) {
-      setError(err.response?.data?.message || "Registration failed");
+      console.error("Registration Error:", err.response?.data || err.message);
+    alert(err.response?.data?.message || "Registration failed");
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#f6f8fa] flex items-center justify-center px-4">
+        <div className="min-h-screen bg-[#f6f8fa] flex items-center justify-center px-4">
       <div className="flex flex-col items-center w-full max-w-md relative">
 
-        {/* Logo block */}
+        {/* Logo */}
         <div
           className="w-28 h-20 bg-white rounded-xl shadow-xl p-2 flex items-center justify-center z-10"
           style={{
@@ -66,94 +61,114 @@ export default function Register() {
         </div>
 
         {/* Register card */}
+        
         <div className="bg-white rounded-2xl shadow-xl w-full p-8 pt-12">
+          <form onSubmit={handleRegister}>
           <h2 className="text-center text-2xl font-bold text-[#111827] mb-6">
-            Create your BuildSync account
+            Create Your Account
           </h2>
-          {error && (
-            <p className="text-red-600 text-sm text-center mb-4">{error}</p>
-          )}
 
-          <form className="space-y-5" onSubmit={handleSubmit}>
-            {/* Name */}
-            <div>
-              <label className="text-sm font-medium text-[#374151]">Name</label>
+          {/* Name */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-[#374151] mb-1">
+              Name
+            </label>
+            <input
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              type="text"
+              placeholder="Your name"
+              className="w-full px-4 py-3 rounded-md border border-[#d1d5db] bg-[#f9fafb] text-sm focus:ring-2 focus:ring-[#2c62f6] focus:outline-none"
+            />
+          </div>
+
+          {/* Email */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-[#374151] mb-1">
+              Email
+            </label>
+            <input
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              type="email"
+              placeholder="you@example.com"
+              className="w-full px-4 py-3 rounded-md border border-[#d1d5db] bg-[#f9fafb] text-sm focus:ring-2 focus:ring-[#2c62f6] focus:outline-none"
+            />
+          </div>
+
+          {/* Password */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-[#374151] mb-1">
+              Password
+            </label>
+            <div className="relative">
               <input
-                type="text"
-                name="name"
-                value={formData.name}
+                name="password"
+                value={formData.password}
                 onChange={handleChange}
-                placeholder="Your Name"
-                className="w-full px-4 py-3 rounded-md border border-[#d1d5db] bg-[#f9fafb] text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#2c62f6]"
+                type={showPassword ? "text" : "password"}
+                placeholder="••••••••"
+                className="w-full px-4 py-3 rounded-md border border-[#d1d5db] bg-[#f9fafb] text-sm focus:ring-2 focus:ring-[#2c62f6] focus:outline-none"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-3 text-sm text-[#4b5563] hover:text-[#1f2937]"
+              >
+                {showPassword ? "Hide" : "Show"}
+              </button>
             </div>
+          </div>
 
-            {/* Email */}
-            <div>
-              <label className="text-sm font-medium text-[#374151]">Email</label>
-              <input
-                 type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="you@example.com"
-                className="w-full px-4 py-3 rounded-md border border-[#d1d5db] bg-[#f9fafb] text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#2c62f6]"
-              />
-            </div>
-
-            {/* Password */}
-            <div>
-              <label className="text-sm font-medium text-[#374151]">Password</label>
-              <div className="relative">
-                <input
-                 type={showPassword ? "text" : "password"}
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  placeholder="••••••••"
-                  className="w-full px-4 py-3 rounded-md border border-[#d1d5db] bg-[#f9fafb] text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#2c62f6]"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-3 text-sm text-[#4b5563] hover:text-[#1f2937]"
-                >
-                  {showPassword ? "Hide" : "Show"}
-                </button>
-              </div>
-            </div>
-
-            {/* Confirm Password */}
-            <div>
-              <label className="text-sm font-medium text-[#374151]">Confirm Password</label>
-              <div className="relative">
-                <input
-                  type={showConfirm ? "text" : "password"}
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  placeholder="••••••••"
-                  className="w-full px-4 py-3 rounded-md border border-[#d1d5db] bg-[#f9fafb] text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#2c62f6]"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirm(!showConfirm)}
-                  className="absolute inset-y-0 right-3 text-sm text-[#4b5563] hover:text-[#1f2937]"
-                >
-                  {showConfirm ? "Hide" : "Show"}
-                </button>
-              </div>
-            </div>
-
-            {/* Register button */}
-            <button
-              type="submit"
-              className="w-full bg-gradient-to-r from-[#1e3a8a] to-[#1d4ed8] text-white py-3 rounded-md text-sm font-semibold shadow-md hover:opacity-90 transition-all"
+          {/* Role */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-[#374151] mb-1">
+              Role
+            </label>
+            <select
+              name="role"
+              value={formData.role}
+              onChange={handleChange}
+              className="w-full px-4 py-3 rounded-md border border-[#d1d5db] bg-[#f9fafb] text-sm focus:ring-2 focus:ring-[#2c62f6] focus:outline-none"
             >
-              Register
-            </button>
-          </form>
+              <option value="">Select role</option>
+              <option value="manager">Manager</option>
+              <option value="resident">Resident</option>
+              <option value="staff">Staff</option>
+            </select>
+          </div>
 
+          {/* Building Code */}
+          <div className="mb-6">
+            <label
+             className="block text-sm font-medium text-[#374151] mb-1">
+              Building Code
+            </label>
+            <input
+              name="buildingCodeRequested"
+              value={formData.buildingCodeRequested}
+              onChange={handleChange}
+              type="text"
+              placeholder="Enter Building Code"
+              className="w-full px-4 py-3 rounded-md border border-[#d1d5db] bg-[#f9fafb] text-sm focus:ring-2 focus:ring-[#2c62f6] focus:outline-none"
+            />
+          </div>
+
+          {/* Submit */}
+          <button
+            type="submit"
+            
+            className="w-full bg-gradient-to-r from-[#1e3a8a] to-[#1d4ed8] text-white py-3 rounded-md text-sm font-semibold shadow-md hover:opacity-90 transition-all"
+          >
+            Register
+          </button>
+          </form>
+          
+
+
+          {/* Login link */}
           <p className="mt-6 text-center text-sm text-[#6b7280]">
             Already have an account?{" "}
             <Link
@@ -163,8 +178,11 @@ export default function Register() {
               Login
             </Link>
           </p>
+          
         </div>
+        
       </div>
     </div>
+    
   );
 }

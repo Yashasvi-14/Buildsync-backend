@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import logo from "@/assets/buildsync-logo.png"; // Adjust path if needed
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import logo from "@/assets/buildsync-logo.png";
 import axios from "axios";
+import { toast } from "sonner"; // Optional but recommended
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -11,40 +11,52 @@ export default function Login() {
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  try {
-    const response = await axios.post(
-      "http://localhost:5000/api/auth/login", // Update with your actual backend URL if needed
-      {email,
-       password }
-    );
+    try {
+      const res = await axios.post("http://localhost:5000/api/auth/login", {
+        email,
+        password,
+      });
 
-    const userData = response.data;
+      const { user, token } = res.data;
 
-    // Store in localStorage
-    localStorage.setItem("user", JSON.stringify(userData));
+      if (!user?.isApproved) {
+        toast.error("Your account is pending approval.");
+        return;
+      }
 
-    // Redirect based on role
-    if (userData.role === "admin") {
-      navigate("/admin/dashboard");
-    } else if (userData.role === "manager") {
-      navigate("/manager/dashboard");
-    } else if (userData.role === "resident") {
-      navigate("/resident/dashboard");
-    } else {
-      alert("Unknown user role");
+      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("token", token);
+
+      toast.success(`Welcome, ${user.name || user.email}!`);
+
+      // Redirect based on role
+      switch (user.role) {
+        case "admin":
+          navigate("/admin/dashboard");
+          break;
+        case "manager":
+          navigate("/manager/dashboard");
+          break;
+        case "resident":
+          navigate("/resident/dashboard");
+          break;
+        case "staff":
+          navigate("/staff/dashboard");
+          break;
+        default:
+          toast.error("Unknown user role");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || "Invalid email or password");
     }
-  } catch (err) {
-    console.error(err);
-    alert("Invalid email or password");
-  }
-};
+  };
 
   return (
     <div className="min-h-screen bg-[#f6f8fa] flex items-center justify-center px-4">
       <div className="flex flex-col items-center w-full max-w-md relative">
-
         {/* Logo block */}
         <div
           className="w-28 h-20 bg-white rounded-xl shadow-xl p-2 flex items-center justify-center z-10"
@@ -135,3 +147,4 @@ export default function Login() {
     </div>
   );
 }
+

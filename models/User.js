@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Building = require("../models/Building");
 const userSchema= new mongoose.Schema(
     {
         name: {
@@ -33,13 +34,10 @@ const userSchema= new mongoose.Schema(
         },
 
         buildingCodeRequested: {
-        type: String,
-        required: function () {
-            return this.role !== "admin";
-        },
-        trim: true,
-        uppercase: true,
-        },
+         type: String,
+         required: true,
+         },
+
 
         building: {
         type: mongoose.Schema.Types.ObjectId,
